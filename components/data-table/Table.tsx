@@ -1,11 +1,7 @@
 "use client";
-import { CiCirclePlus } from "react-icons/ci";
 import * as React from "react";
-import {
-
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+import { FormDrawer } from "../patient-data-form/FormDrawer";
+import { ChevronDownIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -205,7 +201,7 @@ export function DataTable() {
           }
           className="max-w-sm"
         />
-        <Button variant="outline" className="flex items-center  gap-4 ">Add <CiCirclePlus className="text-xl"/></Button>
+        <FormDrawer />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
