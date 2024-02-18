@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useState } from "react";
 import { FormDrawer } from "../patient-data-form/FormDrawer";
 import { ChevronDownIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
@@ -34,36 +35,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const data: Employee[] = [
-  {
-    id: 2,
-    createdAt: "2024-02-15T13:36:11.548Z",
-    updatedAt: "2024-02-15T13:36:11.548Z",
-    firstName: "John",
-    lastName: "Doe",
-    email: "test@example.com",
-    contact: "1234567890",
-    dob: "1990-01-01T00:00:00.000Z",
-    workdays: "Monday, Tuesday, Wednesday",
-    startTime: "2022-01-01T00:00:00.000Z",
-    endTime: "2022-01-01T00:00:00.000Z",
-  },
-  {
-    id: 3,
-    createdAt: "2024-02-15T16:00:06.135Z",
-    updatedAt: "2024-02-15T16:00:06.135Z",
-    firstName: "John2",
-    lastName: "Doe2",
-    email: "test2@example.com",
-    contact: "1234567890",
-    dob: "1990-01-01T00:00:00.000Z",
-    workdays: "Monday, Tuesday, Wednesday",
-    startTime: "2022-01-01T00:00:00.000Z",
-    endTime: "2022-01-01T00:00:00.000Z",
-  },
-];
-
+import { getPatientData } from "@/api/patient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { deletePatientData } from "@/api/patient";
+import { toast } from "react-toastify";
 export type Employee = {
   id: number;
   createdAt: string;
@@ -78,101 +53,103 @@ export type Employee = {
   endTime: string;
 };
 
-export const columns: ColumnDef<Employee>[] = [
-  {
-    accessorKey: "firstName",
-    header: "First Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("firstName")}</div>
-    ),
-  },
-  {
-    accessorKey: "lastName",
-    header: "Last Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("lastName")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("email")}</div>
-    ),
-  },
-  {
-    accessorKey: "dob",
-    header: "Date of Birth",
-    cell: ({ row }) => {
-      const dob = new Date(row.getValue("dob"));
-      return <div>{dob.toLocaleDateString()}</div>;
-    },
-  },
-  {
-    accessorKey: "workdays",
-    header: "Workdays",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("workdays")}</div>
-    ),
-  },
-  {
-    accessorKey: "startTime",
-    header: "Arrival Time",
-    cell: ({ row }) => {
-      const startTime = new Date(row.getValue("startTime"));
-      return (
-        <div>{startTime.toLocaleTimeString(undefined, { hour12: false })}</div>
-      );
-    },
-  },
-  {
-    accessorKey: "endTime",
-    header: "Departure Time",
-    cell: ({ row }) => {
-      const endTime = new Date(row.getValue("endTime"));
-      return (
-        <div>{endTime.toLocaleTimeString(undefined, { hour12: false })}</div>
-      );
-    },
-  },
-
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
-
 export function DataTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const { mutate } = useMutation({
+    mutationFn: deletePatientData,
+    onSuccess: () => {
+      toast.success("Patient data deleted successfully.");
+      window.location.reload();
+    },
+  });
+  const deleteData = (id: number) => {
+    mutate(id);
+  };
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["patientData"],
+    queryFn: () => getPatientData(),
+  });
+
+  console.log("data", data);
+  const table_data: Employee[] = data?.data;
+  console.log("table_data", table_data);
+  const columns: ColumnDef<Employee>[] = [
+    {
+      accessorKey: "firstName",
+      header: "First Name",
+      cell: ({ row }) => <div className="">{row.getValue("firstName")}</div>,
+    },
+    {
+      accessorKey: "lastName",
+      header: "Last Name",
+      cell: ({ row }) => <div className="">{row.getValue("lastName")}</div>,
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => <div className="">{row.getValue("email")}</div>,
+    },
+    {
+      accessorKey: "dob",
+      header: "Date of Birth",
+      cell: ({ row }) => {
+        const dob = new Date(row.getValue("dob"));
+        return <div>{dob.toLocaleDateString()}</div>;
+      },
+    },
+    {
+      accessorKey: "workdays",
+      header: "Workdays",
+      cell: ({ row }) => <div className="">{row.getValue("workdays")}</div>,
+    },
+    {
+      accessorKey: "startTime",
+      header: "Arrival Time",
+      cell: ({ row }) => {
+        return <div>{row.getValue("startTime")}</div>;
+      },
+    },
+    {
+      accessorKey: "endTime",
+      header: "Departure Time",
+      cell: ({ row }) => {
+        return <div>{row.getValue("endTime")}</div>;
+      },
+    },
+
+    {
+      accessorKey: "id",
+      header: "Actions",
+
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => deleteData(row.getValue("id"))}>
+               Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
   const table = useReactTable({
-    data,
+    data: table_data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -189,6 +166,9 @@ export function DataTable() {
       rowSelection,
     },
   });
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full">
@@ -216,7 +196,7 @@ export function DataTable() {
                 return (
                   <DropdownMenuCheckboxItem
                     key={column.id}
-                    className="capitalize"
+                    className=""
                     checked={column.getIsVisible()}
                     onCheckedChange={(value: any) =>
                       column.toggleVisibility(!!value)

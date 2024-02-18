@@ -1,11 +1,42 @@
+"use client";
 import React from "react";
 import { FaGoogle, FaLinkedin } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { addLoginData } from "@/api/user";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+export interface IFormInput {
+  email: string;
+  password: string;
+}
 const LoginForm = () => {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>();
+
+  const { mutate } = useMutation({
+    mutationFn: addLoginData,
+    onSuccess: () => {
+      toast.success("Login successfullly.");
+      router.push("/");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message);
+    },
+  });
+  const onSubmit = (data: any) => {
+    mutate(data);
+  };
+
   return (
-    <form className="w-full max-w-md">
+    <form className="w-full max-w-md" onSubmit={handleSubmit(onSubmit)}>
       <h2 className="text-3xl mb-10 text-center text-black">Login</h2>
       <div className="mb-4">
         <label className="block  text-sm mb-2" htmlFor="username">
@@ -14,9 +45,23 @@ const LoginForm = () => {
         <Input
           className=" text-black "
           id="email"
-          placeholder="Type your email"
-          type="email"
+          placeholder="Enter your email"
+          {...register("email", {
+            pattern: {
+              value: /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/,
+              message: "Invalid email",
+            },
+            required: {
+              value: true,
+              message: "Email is required",
+            },
+          })}
         />
+        <div className="h-[8px]">
+          {errors.email && (
+            <p className="text-xs text-red-400">{errors.email?.message}</p>
+          )}
+        </div>
       </div>
       <div className="mb-8">
         <label className="block  text-sm mb-2" htmlFor="password">
@@ -27,9 +72,15 @@ const LoginForm = () => {
           id="password"
           placeholder="Enter your password"
           type="password"
+          {...register("password", { required: true })}
         />
+        <div className="h-[8px]">
+          {errors.password && (
+            <p className="text-xs text-red-400">This field is required</p>
+          )}
+        </div>
         <Link
-          className="inline-block align-baseline text-xs mt-1 text-black"
+          className="inline-block align-baseline text-xs mt-3 text-black"
           href="#"
         >
           Forgot password?
@@ -51,7 +102,7 @@ const LoginForm = () => {
       <div className="text-center">
         <Link href="/sign-up">
           <Button className=" py-2 px-8 border rounded-md  bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
-        Create an account
+            Create an account
           </Button>
         </Link>
       </div>

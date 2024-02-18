@@ -22,7 +22,6 @@ export function FormDrawer() {
         <div className="mx-auto w-full max-w-5xl">
           <Form />
           <DrawerFooter>
-            <Button>Add Data</Button>
             <DrawerClose asChild>
               <Button variant="outline">Cancel</Button>
             </DrawerClose>

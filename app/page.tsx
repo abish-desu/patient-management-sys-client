@@ -5,7 +5,7 @@ const page = () => {
     <div className="container mx-auto">
       <DataTable />
     </div>
-  )
+  );
 };
 
 export default page;
