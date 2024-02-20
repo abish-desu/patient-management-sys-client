@@ -36,9 +36,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getPatientData } from "@/api/patient";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deletePatientData } from "@/api/patient";
 import { toast } from "react-toastify";
+
 export type Employee = {
   id: number;
   createdAt: string;
@@ -54,6 +55,7 @@ export type Employee = {
 };
 
 export function DataTable() {
+  const queryClient = useQueryClient();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
@@ -63,7 +65,7 @@ export function DataTable() {
     mutationFn: deletePatientData,
     onSuccess: () => {
       toast.success("Patient data deleted successfully.");
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["patientData"] });
     },
   });
   const deleteData = (id: number) => {
@@ -138,9 +140,11 @@ export function DataTable() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-              <DropdownMenuItem>Edit</DropdownMenuItem>
+   
+                <FormDrawer />
+             
               <DropdownMenuItem onClick={() => deleteData(row.getValue("id"))}>
-               Delete
+                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
