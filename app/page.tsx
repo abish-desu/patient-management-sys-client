@@ -3,6 +3,7 @@ import { DataTable } from "@/components/data-table/Table";
 const page = () => {
   return (
     <div className="container mx-auto">
+   
       <DataTable />
     </div>
   );

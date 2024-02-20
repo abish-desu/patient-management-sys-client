@@ -39,6 +39,8 @@ import { getPatientData } from "@/api/patient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deletePatientData } from "@/api/patient";
 import { toast } from "react-toastify";
+import { UpdateDrawer } from "../patient-data-form/UpdateDrawer";
+import Loading from "@/app/loading";
 
 export type Employee = {
   id: number;
@@ -140,9 +142,7 @@ export function DataTable() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-   
-                <FormDrawer />
-             
+              <UpdateDrawer id={row.getValue("id")} />
               <DropdownMenuItem onClick={() => deleteData(row.getValue("id"))}>
                 Delete
               </DropdownMenuItem>
@@ -171,7 +171,7 @@ export function DataTable() {
     },
   });
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (

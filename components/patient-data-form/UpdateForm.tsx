@@ -11,9 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { addPatientData } from "@/api/patient";
+import { updatePatientDataById } from "@/api/patient";
+import { useEffect } from "react";
 export interface PatientData {
-  id: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -24,38 +24,57 @@ export interface PatientData {
   endTime: string;
 }
 
-export default function Form() {
+export default function UpdateForm({ fetched_data }: any) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<PatientData>();
 
   const { mutate } = useMutation({
-    mutationFn: addPatientData,
+    mutationFn: updatePatientDataById,
     onSuccess: () => {
-      toast.success("Data added successfully.");
+      toast.success("Data updated successfully.");
       window.location.reload();
     },
     onError: () => {
-      toast.error("Error in adding data");
+      toast.error("Error in updating data");
     },
   });
   const onSubmit = (data: any) => {
-    mutate(data);
+    const updatedData = { ...data, id: fetched_data.id };
+    console.log("Submitting data: ", updatedData);
+    mutate(updatedData);
   };
-
+  console.log("fetched_data_in form, ", fetched_data);
+  useEffect(() => {
+    if (fetched_data) {
+      setValue("firstName", fetched_data.firstName);
+      setValue("lastName", fetched_data.lastName);
+      setValue("email", fetched_data.email);
+      setValue("contact", fetched_data.contact);
+      setValue("dob", fetched_data.dob);
+      setValue("workDays", fetched_data.workdays);
+      setValue("startTime", fetched_data.startTime);
+      setValue("endTime", fetched_data.endTime);
+    }
+  }, [fetched_data, setValue]);
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-10 px-4">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="first-name">First name</Label>
+            <Label htmlFor="first-name">First Name</Label>
             <Input
               id="first-name"
-              {...register("firstName", { required: true })}
+              {...register("firstName", {
+                required: true,
+              })}
               placeholder="Enter first name"
+              defaultValue={fetched_data?.firstName}
             />
+
             <div className="h-[8px]">
               {errors.firstName && (
                 <p className="text-xs text-red-400">This field is required</p>
@@ -68,6 +87,7 @@ export default function Form() {
               id="last-name"
               {...register("lastName", { required: true })}
               placeholder="Enter last name"
+              defaultValue={fetched_data?.lastName}
             />
             <div className="h-[8px]">
               {errors.lastName && (
@@ -84,6 +104,7 @@ export default function Form() {
               {...register("email", { required: true })}
               placeholder="Enter email"
               type="email"
+              defaultValue={fetched_data?.email}
             />
             <div className="h-[8px]">
               {errors.email && (
@@ -98,6 +119,7 @@ export default function Form() {
               {...register("contact", { required: true })}
               placeholder="Enter contact number"
               type="tel"
+              defaultValue={fetched_data?.contact}
             />
             <div className="h-[8px]">
               {errors.contact && (
@@ -114,6 +136,7 @@ export default function Form() {
               id="date-of-birth"
               {...register("dob", { required: true })}
               type="text"
+              defaultValue={fetched_data?.dob}
             />
             <div className="h-[8px]">
               {errors.dob && (
@@ -128,6 +151,7 @@ export default function Form() {
               id="date-of-birth"
               {...register("workDays", { required: true })}
               type="text"
+              defaultValue={fetched_data?.workdays}
             />
             <div className="h-[8px]">
               {errors.dob && (
@@ -144,6 +168,7 @@ export default function Form() {
               id="start-time"
               {...register("startTime", { required: true })}
               type="text"
+              defaultValue={fetched_data?.startTime}
             />
             <div className="h-[8px]">
               {errors.startTime && (
@@ -158,6 +183,7 @@ export default function Form() {
               id="end-time"
               {...register("endTime", { required: true })}
               type="text"
+              defaultValue={fetched_data?.endTime}
             />
             <div className="h-[8px]">
               {errors.endTime && (
@@ -169,7 +195,7 @@ export default function Form() {
       </div>
 
       <Button type="submit" className="w-full  mt-10 ">
-        Add Data
+        Update Data
       </Button>
     </form>
   );
